@@ -9,6 +9,21 @@ struct Node {
     left: Option<Box<Node>>,
     right: Option<Box<Node>>,
 }
+impl Node {
+    fn new(value: i32) -> Self {
+        Node {
+            value,
+            left: None,
+            right: None,
+        }
+    }
+}
+
+impl From<Node> for Option<Box<Node>> {
+    fn from(node: Node) -> Self {
+        Some(Box::new(node))
+    }
+}
 
 impl Tree {
     fn new() -> Self {
@@ -16,7 +31,8 @@ impl Tree {
     }
 
     fn insert(&mut self, value: i32) {
-        /*match &mut self.root {
+        /* calling insert_recursive fn
+        match &mut self.root {
             None => {
                 self.root = Node::new(value).into();
             }
@@ -24,6 +40,7 @@ impl Tree {
                 Tree::insert_recursive(n, value);
             }
         }*/
+        //calling insert_iterative fn
         self.insert_iterative(value);
     }
 
@@ -82,22 +99,6 @@ impl Tree {
                 }
             }
         }
-    }
-}
-
-impl Node {
-    fn new(value: i32) -> Self {
-        Node {
-            value,
-            left: None,
-            right: None,
-        }
-    }
-}
-
-impl From<Node> for Option<Box<Node>> {
-    fn from(node: Node) -> Self {
-        Some(Box::new(node))
     }
 }
 
