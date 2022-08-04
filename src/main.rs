@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 #[derive(Debug)]
 struct Tree {
     root: Option<Box<Node>>,
@@ -29,7 +31,37 @@ impl Tree {
     fn new() -> Self {
         Tree { root: None }
     }
+    fn traverse_level(&self) -> Vec<i32> {
+        if self.root.is_none() {
+            return Vec::new();
+        }
 
+        let mut results: Vec<i32> = Vec::new();
+        let mut q: VecDeque<&Box<Node>> = VecDeque::new();
+        let root = self.root.as_ref().unwrap();
+        results.push(root.value);
+        q.push_back(root);
+
+        let mut height = 0;
+        while !q.is_empty() {
+            for _ in 0..q.len() {
+                if let Some(node) = q.pop_front() {
+                    if let Some(ref left) = node.left {
+                        results.push(left.value);
+                        q.push_back(left);
+                    }
+                    if let Some(ref right) = node.right {
+                        results.push(right.value);
+                        q.push_back(right);
+                    }
+                }
+            }
+            height += 1;
+        }
+
+        println!("height:{}", height);
+        results
+    }
     fn insert(&mut self, value: i32) {
         /* calling insert_recursive fn
         match &mut self.root {
@@ -119,5 +151,19 @@ mod tests {
         assert_eq!(tree.root.is_some(), true);
 
         println!("{:?}", tree);
+    }
+    #[test]
+
+    fn test_level_traverse_tree() {
+        let mut tree = Tree::new();
+        tree.insert(9);
+        tree.insert(10);
+        tree.insert(8);
+        tree.insert(5);
+        tree.insert(13);
+        tree.insert(7);
+        tree.insert(11);
+        tree.insert(3);
+        assert_eq!(tree.traverse_level(), vec!(9, 8, 10, 5, 13, 3, 7, 11))
     }
 }
