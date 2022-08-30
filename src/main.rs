@@ -26,6 +26,91 @@ impl From<Node> for Option<Box<Node>> {
         Some(Box::new(node))
     }
 }
+struct InorderTraversal<'a>{
+    node: Option<& 'a Box<Node>>,
+    queue : Vec<& 'a Box<Node>>
+}
+impl<'a> InorderTraversal<'a> {
+    fn new(node: Option<& 'a Box<Node>>)-> Self{
+        InorderTraversal{  
+            node,
+            queue: Vec::new()
+        }
+    }
+}
+
+impl<'a> Iterator for InorderTraversal<'a>{
+    type Item =i32;
+
+    fn next(&mut self) -> Option<Self::Item> {
+
+        match (self.node,&mut self.queue){
+
+            (None,q) if q.is_empty() =>None,
+            (None,q)=>{
+                let node = q.pop().unwrap();
+                self.node= node.right.as_ref();
+                Some(node.value)
+
+            },
+            (Some(node),q)=>{
+                q.push(node);
+                self.node=node.left.as_ref();
+                self.next()
+            }
+            
+            
+    
+
+            }
+        }
+
+        
+                
+            }
+
+
+struct LevelTraversal<'a>{
+    node: Option<& 'a Box<Node>>,
+    queue : VecDeque<& 'a Box<Node>>
+}
+impl<'a> LevelTraversal<'a> {
+    fn new(node: Option<& 'a Box<Node>>)-> Self{
+        LevelTraversal{  
+            node,
+            queue: VecDeque::new()
+        }
+    }
+}
+
+impl<'a> Iterator for LevelTraversal<'a>{
+    type Item =i32;
+    fn next(&mut self) -> Option<Self::Item> {
+        match (self.node,&mut self.queue){
+            (None,q) if q.is_empty() =>None,
+            (None,q)=>{
+                self.node= q.pop_front();
+                self.next()
+            },
+            (Some(node),q)=>{
+                if let Some(ref left) = node.left {
+                    
+                    q.push_back(left);
+                }
+                if let Some(ref right) = node.right {
+                    
+                    q.push_back(right);
+                }
+                self.node = None;
+                Some(node.value)
+
+            }
+        }
+
+        
+                
+            }
+    }
 
 impl Tree {
     fn new() -> Self {
@@ -61,6 +146,14 @@ impl Tree {
 
         println!("height:{}", height);
         results
+    }
+     
+    fn level_iter(&self)->LevelTraversal{
+        LevelTraversal::new(self.root.as_ref())
+    }
+
+    fn inorder_iter(&self)->InorderTraversal{
+        InorderTraversal::new(self.root.as_ref())
     }
     fn traverse_inorder_recursive(values:&mut Vec<i32>,node:&Box<Node>){
         if let Some(ref left)=node.left{
@@ -242,5 +335,37 @@ mod tests {
         tree.insert(14);
         tree.insert(13);
         assert_eq!(tree.traverse_inorder_iterative(),vec![1,3,4,6,7,9,10,13,14])
+    }
+
+    #[test]
+    fn test_level_traversal_iter_tree(){
+        let mut tree = Tree::new();
+        tree.insert(9);
+        tree.insert(10);
+        tree.insert(3);
+        tree.insert(1);
+        tree.insert(6);
+        tree.insert(4);
+        tree.insert(7);
+        tree.insert(14);
+        tree.insert(13);
+        let values:Vec<i32> = tree.level_iter().collect();
+        assert_eq!(values,vec![9,3,10,1,6,14,4,7,13])
+    }
+
+    #[test]
+    fn test_inorder_traversal_iter_tree(){
+        let mut tree = Tree::new();
+        tree.insert(9);
+        tree.insert(10);
+        tree.insert(3);
+        tree.insert(1);
+        tree.insert(6);
+        tree.insert(4);
+        tree.insert(7);
+        tree.insert(14);
+        tree.insert(13);
+        let values:Vec<i32> = tree.inorder_iter().collect();
+        assert_eq!(values,vec![1,3,4,6,7,9,10,13,14])
     }
 }
